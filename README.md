@@ -44,24 +44,13 @@ npm run dev
 
 ## Deployment to Vercel
 
-### Step 1: Push to GitHub
-
-1. Create a new repository on GitHub
-2. Push your code:
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/your-username/ai-chatbot.git
-git push -u origin main
-```
+### Step 1: Code is already on GitHub
 
 ### Step 2: Deploy on Vercel
 
 1. Go to https://vercel.com
 2. Click "Add New..." → "Project"
-3. Import your GitHub repository
+3. Import your GitHub repository (huyenthang/Ai-chat-bot)
 4. In "Environment Variables" section, add:
 
 | Name | Value |

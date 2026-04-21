@@ -73,7 +73,6 @@ export default function ChatPage() {
 
     try {
       const canvas = document.body
-      // Use html2canvas from CDN
       const script = document.createElement('script')
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'
       document.head.appendChild(script)
@@ -101,74 +100,109 @@ export default function ChatPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0a0f] text-[#f0f0f5] flex flex-col">
-      <header className="bg-[#12121a] border-b border-[#1e1e2e] p-4 flex items-center gap-3 flex-wrap">
-        <input 
-          type="password" 
-          value={apiKey}
-          onChange={e => setApiKey(e.target.value)}
-          placeholder="NVIDIA API Key"
-          className="flex-1 min-w-[200px] px-4 py-2 bg-[#0a0a0f] border border-[#1e1e2e] rounded-lg"
-        />
-        <button onClick={saveApiKey} className="px-4 py-2 bg-[#6366f1] rounded-lg">Save</button>
-        <a href="https://build.nvidia.com/models" target="_blank" className="text-[#6366f1] text-sm">Lấy API Key</a>
+    <main className="min-h-screen bg-gradient-to-b from-[#0d0d12] to-[#18181b] text-white flex flex-col">
+      {/* Header */}
+      <header className="bg-[#12121a]/80 backdrop-blur-md border-b border-[#2a2a3a] p-4">
+        <div className="max-w-4xl mx-auto flex items-center gap-3 flex-wrap">
+          <input 
+            type="password" 
+            value={apiKey}
+            onChange={e => setApiKey(e.target.value)}
+            placeholder="NVIDIA API Key"
+            className="flex-1 min-w-[250px] px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-xl text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+          />
+          <button onClick={saveApiKey} className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-xl text-sm font-medium transition-all">Lưu</button>
+          <a href="https://build.nvidia.com/models" target="_blank" className="text-purple-400 text-sm hover:text-purple-300 transition-colors">Lấy API Key</a>
+        </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {messages.length === 0 && (
-          <div className="text-center text-[#9ca3af] mt-12">Hãy nhập tin nhắn để bắt đầu</div>
-        )}
-        
-        {messages.map((msg, idx) => (
-          <div key={idx} className={`max-w-[80%] px-4 py-3 rounded-xl ${
-            msg.role === 'user' 
-              ? 'bg-[#1e1b4b] ml-auto rounded-br-sm' 
-              : 'bg-[#18181b] mr-auto rounded-bl-sm'
-          }`}>
-            <p className="whitespace-pre-wrap">{msg.content}</p>
-          </div>
-        ))}
-
-        {loading && (
-          <div className="max-w-[80%] bg-[#18181b] px-4 py-3 rounded-xl mr-auto">
-            <div className="flex gap-1">
-              <span className="w-2 h-2 bg-[#9ca3af] rounded-full animate-bounce" style={{animationDelay: '0ms'}} />
-              <span className="w-2 h-2 bg-[#9ca3af] rounded-full animate-bounce" style={{animationDelay: '150ms'}} />
-              <span className="w-2 h-2 bg-[#9ca3af] rounded-full animate-bounce" style={{animationDelay: '300ms'}} />
+      {/* Chat Area */}
+      <div className="flex-1 overflow-y-auto p-6 pb-32">
+        <div className="max-w-4xl mx-auto space-y-4">
+          {messages.length === 0 && (
+            <div className="text-center py-20">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              </div>
+              <p className="text-gray-400 text-lg">Chào bạn! Hãy nhập tin nhắn để bắt đầu</p>
+              <p className="text-gray-600 text-sm mt-2">Sử dụng AI Llama 3.1</p>
             </div>
-          </div>
-        )}
-        
-        <div ref={messagesEndRef} />
+          )}
+          
+          {messages.map((msg, idx) => (
+            <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+              <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center ${
+                msg.role === 'user' 
+                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600' 
+                  : 'bg-gradient-to-r from-emerald-600 to-teal-600'
+              }`}>
+                {msg.role === 'user' ? (
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M7 8v8l6-4z" /></svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                )}
+              </div>
+              <div className={`max-w-[75%] px-4 py-3 rounded-2xl ${
+                msg.role === 'user' 
+                  ? 'bg-gradient-to-r from-purple-600/20 to-indigo-600/20 border border-purple-500/30' 
+                  : 'bg-[#1a1a24] border border-[#2a2a3a]'
+              }`}>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed">{msg.content}</p>
+              </div>
+            </div>
+          ))}
+
+          {loading && (
+            <div className="flex gap-3">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 flex items-center justify-center">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              </div>
+              <div className="bg-[#1a1a24] border border-[#2a2a3a] px-4 py-3 rounded-2xl">
+                <div className="flex gap-1">
+                  <span className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}} />
+                  <span className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}} />
+                  <span className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}} />
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
-      <div className="bg-[#12121a] border-t border-[#1e1e2e] p-4 flex gap-3">
-        <input 
-          type="text"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && sendMessage()}
-          placeholder="Nhập tin nhắn..."
-          disabled={loading}
-          className="flex-1 px-4 py-3 bg-[#0a0a0f] border border-[#1e1e2e] rounded-lg"
-        />
-        <button 
-          onClick={sendMessage}
-          disabled={loading || !input.trim()}
-          className="px-6 py-3 bg-[#6366f1] rounded-lg disabled:opacity-50"
-        >
-          Gửi
-        </button>
+      {/* Input Area */}
+      <div className="bg-[#12121a]/80 backdrop-blur-md border-t border-[#2a2a3a] p-4">
+        <div className="max-w-4xl mx-auto flex gap-3">
+          <input 
+            type="text"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && sendMessage()}
+            placeholder="Nhập tin nhắn..."
+            disabled={loading}
+            className="flex-1 px-5 py-3 bg-[#1a1a24] border border-[#2a2a3a] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+          />
+          <button 
+            onClick={sendMessage}
+            disabled={loading || !input.trim()}
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-50 rounded-xl font-medium transition-all"
+          >
+            Gửi
+          </button>
+        </div>
       </div>
 
-      <div className="fixed bottom-4 left-4 flex items-center gap-2 text-[#9ca3af]">
+      {/* Credit */}
+      <div className="fixed bottom-4 left-4 flex items-center gap-2 text-gray-500">
         <img src="https://lh3.googleusercontent.com/a/ACg8ocJLGCzeKxlZmL3zVNZcrRd3LPEN1oWWxec8xZDT2KNLZKOr5w=s96-c" className="w-8 h-8 rounded-full" />
-        <span>Được tạo bởi Huyen Thang</span>
+        <span className="text-sm">Được tạo bởi Huyen Thang</span>
       </div>
 
+      {/* Submit Button */}
       <button 
         onClick={submitHomework}
-        className="fixed bottom-6 right-6 px-6 py-3 bg-[#22c55e] rounded-lg text-white font-semibold shadow-lg"
+        className="fixed bottom-5 right-5 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 rounded-xl text-white font-semibold shadow-lg hover:shadow-emerald-500/25 transition-all transform hover:scale-105"
       >
         Nộp bài
       </button>

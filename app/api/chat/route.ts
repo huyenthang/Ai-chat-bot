@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { spawn } from 'child_process'
+import https from 'https'
 
 export const maxDuration = 30
 
@@ -18,38 +18,31 @@ export async function POST(request: NextRequest) {
       temperature: 0.5
     })
 
-    const options = {
-      hostname: 'integrate.api.nvidia.com',
-      path: '/v1/chat/completions',
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(postData)
+    const data = await new Promise<string>((resolve, reject) => {
+      const options = {
+        hostname: 'integrate.api.nvidia.com',
+        path: '/v1/chat/completions',
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData)
+        }
       }
-    }
 
-    return new Promise((resolve) => {
-      const req = require('https').request(options, (res: any) => {
-        let data = ''
-        res.on('data', (chunk: any) => data += chunk)
-        res.on('end', () => {
-          try {
-            const parsed = JSON.parse(data)
-            resolve(NextResponse.json(parsed))
-          } catch {
-            resolve(NextResponse.json({ error: 'Invalid response' }, { status: 500 }))
-          }
-        })
+      const req = https.request(options, (res) => {
+        let body = ''
+        res.on('data', (chunk) => body += chunk)
+        res.on('end', () => resolve(body))
       })
 
-      req.on('error', (e: any) => {
-        resolve(NextResponse.json({ error: e.message }, { status: 500 }))
-      })
-
+      req.on('error', reject)
       req.write(postData)
       req.end()
     })
+
+    const parsed = JSON.parse(data)
+    return NextResponse.json(parsed)
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
   }

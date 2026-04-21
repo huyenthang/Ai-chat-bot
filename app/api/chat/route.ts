@@ -1,11 +1,10 @@
-import { createOpenAI } from '@ai-sdk/openai'
-import { streamText } from 'ai'
+import OpenAI from 'openai'
 
-const openai = createOpenAI({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-export const maxDuration = 30
+export const maxDuration = 60
 
 export async function POST(request: Request) {
   try {
@@ -34,12 +33,18 @@ export async function POST(request: Request) {
 Respond concisely, accurately, and in a helpful manner. Keep answers brief but informative.`
     }
 
-    const result = streamText({
-      model: openai,
+    const stream = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
       messages: [systemMessage, ...messages],
+      stream: true,
     })
 
-    return result.toDataStreamResponse()
+    return new Response(stream.toReadableStream(), {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Transfer-Encoding': 'chunked',
+      },
+    })
   } catch (error) {
     console.error('Error:', error)
     return new Response(

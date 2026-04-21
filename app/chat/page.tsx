@@ -59,20 +59,8 @@ export default function ChatPage() {
         const { done, value } = await reader.read()
         if (done) break
         const chunk = decoder.decode(value, { stream: true })
-        const lines = chunk.split('\n')
-        
-        for (const line of lines) {
-          if (line.startsWith('0:') || line.startsWith('{"content":"')) {
-            try {
-              const data = line.replace(/^0:/, '').replace(/^{"content":"/, '').replace(/"}$/, '')
-              const decoded = data.replace(/\\n/g, '\n').replace(/\\"/g, '"')
-              fullContent += decoded
-              setStreamingContent(fullContent)
-            } catch {
-              // Skip invalid lines
-            }
-          }
-        }
+        fullContent += chunk
+        setStreamingContent(fullContent)
       }
 
       setMessages((prev) => [

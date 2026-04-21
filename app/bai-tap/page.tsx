@@ -7,11 +7,17 @@ interface Message {
   content: string
 }
 
+const APP_PASSWORD = 'huyenthang123'
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [apiKey, setApiKey] = useState('')
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false)
+  const [tempMessage, setTempMessage] = useState('')
+  const [passwordError, setPasswordError] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -30,13 +36,28 @@ export default function ChatPage() {
     }
   }
 
-  const sendMessage = async () => {
+  const handleSendClick = () => {
     if (!input.trim() || loading || !apiKey) return
-    
-    const userMessage = input.trim()
+    setTempMessage(input.trim())
+    setShowPasswordPrompt(true)
+    setPasswordError('')
+  }
+
+  const handlePasswordSubmit = () => {
+    const password = (document.getElementById('passwordInput') as HTMLInputElement)?.value
+    if (password === APP_PASSWORD) {
+      setShowPasswordPrompt(false)
+      setIsAuthenticated(true)
+      setInput('')
+      sendMessage(tempMessage)
+    } else {
+      setPasswordError('Mật khẩu sai!')
+    }
+  }
+
+  const sendMessage = async (userMessage: string) => {
     const currentMessages = [...messages, { role: 'user' as const, content: userMessage }]
     
-    setInput('')
     setMessages(prev => [...prev, { role: 'user', content: userMessage }])
     setLoading(true)
 
@@ -105,6 +126,38 @@ export default function ChatPage() {
         background: `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`
       }}>
       
+      {/* Password Prompt Modal */}
+      {showPasswordPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="bg-[#1a1a2e] border border-white/10 p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-white mb-4 text-center">🔐 Nhập mật khẩu</h3>
+            <p className="text-gray-400 text-sm mb-4 text-center">Nhập mật khẩu để gửi tin nhắn</p>
+            <input 
+              id="passwordInput"
+              type="password"
+              placeholder="Mật khẩu..."
+              className="w-full px-5 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 mb-4"
+              onKeyDown={e => e.key === 'Enter' && handlePasswordSubmit()}
+            />
+            {passwordError && <p className="text-red-500 text-sm mb-4 text-center">{passwordError}</p>}
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setShowPasswordPrompt(false)}
+                className="flex-1 px-5 py-3 bg-gray-600 rounded-xl font-medium text-white"
+              >
+                Hủy
+              </button>
+              <button 
+                onClick={handlePasswordSubmit}
+                className="flex-1 px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-medium"
+              >
+                Xác nhận
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -194,13 +247,13 @@ export default function ChatPage() {
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && sendMessage()}
+              onKeyDown={e => e.key === 'Enter' && handleSendClick()}
               placeholder="Nhập tin nhắn..."
               disabled={loading}
               className="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition-all text-lg"
             />
             <button 
-              onClick={sendMessage}
+              onClick={handleSendClick}
               disabled={loading || !input.trim()}
               className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl font-semibold transition-all shadow-lg hover:shadow-purple-500/30 text-lg"
             >

@@ -1,5 +1,9 @@
-import { openai } from 'ai_modules/openai'
+import { createOpenAI } from '@ai-sdk/openai'
 import { streamText } from 'ai'
+
+const openai = createOpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+})
 
 export const maxDuration = 30
 
@@ -31,7 +35,7 @@ Respond concisely, accurately, and in a helpful manner. Keep answers brief but i
     }
 
     const result = streamText({
-      model: 'gpt-4o-mini',
+      model: openai,
       messages: [systemMessage, ...messages],
     })
 
